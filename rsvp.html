@@ -45,6 +45,36 @@
       background: #efe7dd;
     }
 
+    .language-switch {
+      display: inline-flex;
+      gap: 4px;
+      margin-left: 12px;
+    }
+
+    .nav-separator {
+      margin-left: 14px;
+      color: #b9aa9b;
+      line-height: 35px;
+    }
+
+    .language-switch button {
+      color: #4a3a30;
+      font: inherit;
+      font-size: 15px;
+      line-height: 1;
+      text-transform: uppercase;
+      padding: 10px 12px;
+      border: 0;
+      border-radius: 999px;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .language-switch button[aria-pressed="true"],
+    .language-switch button:hover {
+      background: #efe7dd;
+    }
+
     main {
       max-width: 760px;
       margin: 0 auto;
@@ -84,6 +114,20 @@
         padding: 8px 9px;
       }
 
+      .language-switch button {
+        font-size: 12px;
+        padding: 8px 9px;
+      }
+
+      .language-switch {
+        margin-left: 4px;
+      }
+
+      .nav-separator {
+        margin-left: 6px;
+        line-height: 28px;
+      }
+
       main {
         max-width: 300px;
         padding: 32px 10px;
@@ -109,22 +153,70 @@
 </head>
 <body>
   <nav class="site-nav" aria-label="Main navigation">
-    <a href="index.html">Home</a>
-    <a href="details.html">Details</a>
+    <a href="index.html" data-i18n="navHome">Home</a>
+    <a href="details.html" data-i18n="navDetails">Details</a>
     <a href="rsvp.html" aria-current="page">RSVP</a>
-    <a href="gifts.html">Gifts</a>
+    <a href="gifts.html" data-i18n="navGifts">Gifts</a>
+    <span class="nav-separator" aria-hidden="true">|</span>
+    <span class="language-switch" aria-label="Language">
+      <button type="button" data-lang="en" aria-pressed="true">🇬🇧 EN</button>
+      <button type="button" data-lang="it" aria-pressed="false">🇮🇹 IT</button>
+    </span>
   </nav>
 
   <main>
     <h1>RSVP</h1>
-    <p>Please let us know if you will be joining us by 01/06/2027.</p>
+    <p data-i18n="rsvpIntro">Please let us know if you will be joining us by 01/06/2027.</p>
 
     <iframe
       class="form-frame"
       title="Wedding RSVP form"
+      data-i18n-title="formTitle"
       src="https://docs.google.com/forms/d/e/1FAIpQLSdph3Titf34rCsJifeJqPrM2aXdjAs2SdD_jOx035A_JaL9yQ/viewform?embedded=true">
       Loading...
     </iframe>
   </main>
+  <script>
+    const englishFormUrl = "https://docs.google.com/forms/d/e/1FAIpQLSdph3Titf34rCsJifeJqPrM2aXdjAs2SdD_jOx035A_JaL9yQ/viewform?embedded=true";
+    const italianFormUrl = "https://docs.google.com/forms/d/e/1FAIpQLScnsU8T5K7r2CdHzOUyZ9Qs_1mcRcNy6mXTs52FiTiIoUGviQ/viewform?embedded=true";
+    const translations = {
+      en: {
+        navHome: "Home",
+        navDetails: "Details",
+        navGifts: "Gifts",
+        rsvpIntro: "Please let us know if you will be joining us by 01/06/2027.",
+        formTitle: "Wedding RSVP form"
+      },
+      it: {
+        navHome: "Home",
+        navDetails: "Dettagli",
+        navGifts: "Regali",
+        rsvpIntro: "Fateci sapere se sarete con noi entro il 01/06/2027.",
+        formTitle: "Modulo RSVP matrimonio"
+      }
+    };
+
+    function applyLanguage(language) {
+      const copy = translations[language] || translations.en;
+      document.documentElement.lang = language;
+      document.querySelectorAll("[data-i18n]").forEach((element) => {
+        element.textContent = copy[element.dataset.i18n];
+      });
+      document.querySelectorAll("[data-i18n-title]").forEach((element) => {
+        element.title = copy[element.dataset.i18nTitle];
+      });
+      document.querySelector(".form-frame").src = language === "it" ? italianFormUrl : englishFormUrl;
+      document.querySelectorAll("[data-lang]").forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.lang === language));
+      });
+      localStorage.setItem("weddingLanguage", language);
+    }
+
+    document.querySelectorAll("[data-lang]").forEach((button) => {
+      button.addEventListener("click", () => applyLanguage(button.dataset.lang));
+    });
+
+    applyLanguage(localStorage.getItem("weddingLanguage") || "en");
+  </script>
 </body>
 </html>

@@ -44,6 +44,36 @@
       background: #efe7dd;
     }
 
+    .language-switch {
+      display: inline-flex;
+      gap: 4px;
+      margin-left: 12px;
+    }
+
+    .nav-separator {
+      margin-left: 14px;
+      color: #b9aa9b;
+      line-height: 35px;
+    }
+
+    .language-switch button {
+      color: #4a3a30;
+      font: inherit;
+      font-size: 15px;
+      line-height: 1;
+      text-transform: uppercase;
+      padding: 10px 12px;
+      border: 0;
+      border-radius: 999px;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .language-switch button[aria-pressed="true"],
+    .language-switch button:hover {
+      background: #efe7dd;
+    }
+
     .image-container {
       min-height: calc(100vh - 58px);
       display: flex;
@@ -70,6 +100,20 @@
         padding: 8px 9px;
       }
 
+      .language-switch button {
+        font-size: 12px;
+        padding: 8px 9px;
+      }
+
+      .language-switch {
+        margin-left: 4px;
+      }
+
+      .nav-separator {
+        margin-left: 6px;
+        line-height: 28px;
+      }
+
       .image-container {
         display: block;
         min-height: 0;
@@ -85,14 +129,57 @@
 </head>
 <body>
   <nav class="site-nav" aria-label="Main navigation">
-    <a href="index.html" aria-current="page">Home</a>
-    <a href="details.html">Details</a>
+    <a href="index.html" aria-current="page" data-i18n="navHome">Home</a>
+    <a href="details.html" data-i18n="navDetails">Details</a>
     <a href="rsvp.html">RSVP</a>
-    <a href="gifts.html">Gifts</a>
+    <a href="gifts.html" data-i18n="navGifts">Gifts</a>
+    <span class="nav-separator" aria-hidden="true">|</span>
+    <span class="language-switch" aria-label="Language">
+      <button type="button" data-lang="en" aria-pressed="true">🇬🇧 EN</button>
+      <button type="button" data-lang="it" aria-pressed="false">🇮🇹 IT</button>
+    </span>
   </nav>
 
   <main class="image-container">
-    <img src="invite.png" alt="Invite" />
+    <img src="invite.png" alt="Invite" data-i18n-alt="homeImageAlt" />
   </main>
+  <script>
+    const translations = {
+      en: {
+        navHome: "Home",
+        navDetails: "Details",
+        navGifts: "Gifts",
+        homeImageAlt: "Invite"
+      },
+      it: {
+        navHome: "Home",
+        navDetails: "Dettagli",
+        navGifts: "Regali",
+        homeImageAlt: "Invito"
+      }
+    };
+
+    function applyLanguage(language) {
+      const copy = translations[language] || translations.en;
+      document.documentElement.lang = language;
+      document.querySelectorAll("[data-i18n]").forEach((element) => {
+        element.textContent = copy[element.dataset.i18n];
+      });
+      document.querySelectorAll("[data-i18n-alt]").forEach((element) => {
+        element.alt = copy[element.dataset.i18nAlt];
+      });
+      document.querySelector(".image-container img").src = language === "it" ? "invito.png" : "invite.png";
+      document.querySelectorAll("[data-lang]").forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.lang === language));
+      });
+      localStorage.setItem("weddingLanguage", language);
+    }
+
+    document.querySelectorAll("[data-lang]").forEach((button) => {
+      button.addEventListener("click", () => applyLanguage(button.dataset.lang));
+    });
+
+    applyLanguage(localStorage.getItem("weddingLanguage") || "en");
+  </script>
 </body>
 </html>

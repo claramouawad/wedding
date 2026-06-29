@@ -45,6 +45,36 @@
       background: #efe7dd;
     }
 
+    .language-switch {
+      display: inline-flex;
+      gap: 4px;
+      margin-left: 12px;
+    }
+
+    .nav-separator {
+      margin-left: 14px;
+      color: #b9aa9b;
+      line-height: 35px;
+    }
+
+    .language-switch button {
+      color: #4a3a30;
+      font: inherit;
+      font-size: 15px;
+      line-height: 1;
+      text-transform: uppercase;
+      padding: 10px 12px;
+      border: 0;
+      border-radius: 999px;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .language-switch button[aria-pressed="true"],
+    .language-switch button:hover {
+      background: #efe7dd;
+    }
+
     main {
       max-width: 760px;
       margin: 0 auto;
@@ -158,6 +188,20 @@
         padding: 8px 9px;
       }
 
+      .language-switch button {
+        font-size: 12px;
+        padding: 8px 9px;
+      }
+
+      .language-switch {
+        margin-left: 4px;
+      }
+
+      .nav-separator {
+        margin-left: 6px;
+        line-height: 28px;
+      }
+
       main {
         max-width: 270px;
         padding: 32px 10px;
@@ -206,15 +250,20 @@
 </head>
 <body>
   <nav class="site-nav" aria-label="Main navigation">
-    <a href="index.html">Home</a>
-    <a href="details.html" aria-current="page">Details</a>
+    <a href="index.html" data-i18n="navHome">Home</a>
+    <a href="details.html" aria-current="page" data-i18n="navDetails">Details</a>
     <a href="rsvp.html">RSVP</a>
-    <a href="gifts.html">Gifts</a>
+    <a href="gifts.html" data-i18n="navGifts">Gifts</a>
+    <span class="nav-separator" aria-hidden="true">|</span>
+    <span class="language-switch" aria-label="Language">
+      <button type="button" data-lang="en" aria-pressed="true">🇬🇧 EN</button>
+      <button type="button" data-lang="it" aria-pressed="false">🇮🇹 IT</button>
+    </span>
   </nav>
 
   <main>
-    <h1>Details</h1>
-    <p class="date-note">Our wedding will take place on Saturday 03 July 2027.</p>
+    <h1 data-i18n="detailsTitle">Details</h1>
+    <p class="date-note" data-i18n="dateNote">Our wedding will take place on Saturday 03 July 2027.</p>
     <ul class="events">
       <li class="event">
         <h2>
@@ -225,19 +274,19 @@
             <path d="M9 21v-6a3 3 0 0 1 6 0v6" />
             <path d="M3 21h18" />
           </svg>
-          Ceremony
+          <span data-i18n="ceremonyTitle">Ceremony</span>
         </h2>
         <p><strong>San Martino del Vento</strong></p>
-        <p>at 15:00</p>
+        <p data-i18n="ceremonyTime">at 15:00</p>
         <p>Loc. San Martino del Vento, 16024 Lumarzo GE, Italy</p>
-        <p class="description">This is where our wedding ceremony will take place. The church was first built in the 5th century and has been renovated several times throughout its long history.</p>
+        <p class="description" data-i18n="ceremonyDescription">This is where our wedding ceremony will take place. The church was first built in the 5th century and has been renovated several times throughout its long history.</p>
         <a class="map-link" href="https://maps.app.goo.gl/ByJrPwrvvfKSUZzq8" target="_blank" rel="noopener noreferrer">
           <iframe
             title="Map preview for San Martino del Vento"
             loading="lazy"
             src="https://www.google.com/maps?q=San%20Martin%20del%20Vento%2C%20Loc.%20San%20Martino%20del%20Vento%2C%2016024%20Lumarzo%20GE%2C%20Italy&output=embed">
           </iframe>
-          <span>Open in Google Maps</span>
+          <span data-i18n="mapLink">Open in Google Maps</span>
         </a>
       </li>
       <li class="event">
@@ -251,22 +300,75 @@
             <path d="M11 21v-5a1 1 0 0 1 2 0v5" />
             <path d="M3 21h18" />
           </svg>
-          Reception
+          <span data-i18n="receptionTitle">Reception</span>
         </h2>
         <p><strong>Castello Giacomo Becchi</strong></p>
-        <p>at 17:00</p>
+        <p data-i18n="receptionTime">at 17:00</p>
         <p>Località Tercesi, 99, 16029 Scoffera GE, Italy</p>
-        <p class="description">After the ceremony, we will gather here for a welcome cocktail, followed by a seated dinner and an evening party with dancing.</p>
+        <p class="description" data-i18n="receptionDescription">After the ceremony, we will gather here for a welcome cocktail, followed by a seated dinner and an evening party with dancing.</p>
         <a class="map-link" href="https://maps.app.goo.gl/vZxnKhwPGma569Me6" target="_blank" rel="noopener noreferrer">
           <iframe
             title="Map preview for Castello Giacomo Becchi"
             loading="lazy"
             src="https://www.google.com/maps?q=Castello%20Giacomo%20Becchi%2C%20Localit%C3%A0%20Tercesi%2C%2099%2C%2016029%20Scoffera%20GE%2C%20Italy&output=embed">
           </iframe>
-          <span>Open in Google Maps</span>
+          <span data-i18n="mapLink">Open in Google Maps</span>
         </a>
       </li>
     </ul>
   </main>
+  <script>
+    const translations = {
+      en: {
+        navHome: "Home",
+        navDetails: "Details",
+        navGifts: "Gifts",
+        pageTitle: "Details | Clara & Tommaso",
+        detailsTitle: "Details",
+        dateNote: "Our wedding will take place on Saturday 03 July 2027.",
+        ceremonyTitle: "Ceremony",
+        ceremonyTime: "at 15:00",
+        ceremonyDescription: "This is where our wedding ceremony will take place. The church was first built in the 5th century and has been renovated several times throughout its long history.",
+        receptionTitle: "Reception",
+        receptionTime: "at 17:00",
+        receptionDescription: "After the ceremony, we will gather here for a welcome cocktail, followed by a seated dinner and an evening party with dancing.",
+        mapLink: "Open in Google Maps"
+      },
+      it: {
+        navHome: "Home",
+        navDetails: "Dettagli",
+        navGifts: "Regali",
+        pageTitle: "Dettagli | Clara & Tommaso",
+        detailsTitle: "Dettagli",
+        dateNote: "Il nostro matrimonio si terrà sabato 03 luglio 2027.",
+        ceremonyTitle: "Cerimonia",
+        ceremonyTime: "alle 15:00",
+        ceremonyDescription: "Qui si svolgerà la nostra cerimonia di nozze. La chiesa fu costruita nel V secolo ed è stata ristrutturata più volte nel corso della sua lunga storia.",
+        receptionTitle: "Ricevimento",
+        receptionTime: "alle 17:00",
+        receptionDescription: "Dopo la cerimonia ci ritroveremo qui per un cocktail di benvenuto, seguito da una cena placée e infine da una festa con musica e balli.",
+        mapLink: "Apri in Google Maps"
+      }
+    };
+
+    function applyLanguage(language) {
+      const copy = translations[language] || translations.en;
+      document.documentElement.lang = language;
+      document.title = copy.pageTitle;
+      document.querySelectorAll("[data-i18n]").forEach((element) => {
+        element.textContent = copy[element.dataset.i18n];
+      });
+      document.querySelectorAll("[data-lang]").forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.lang === language));
+      });
+      localStorage.setItem("weddingLanguage", language);
+    }
+
+    document.querySelectorAll("[data-lang]").forEach((button) => {
+      button.addEventListener("click", () => applyLanguage(button.dataset.lang));
+    });
+
+    applyLanguage(localStorage.getItem("weddingLanguage") || "en");
+  </script>
 </body>
 </html>

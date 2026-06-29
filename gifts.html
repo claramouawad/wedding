@@ -45,6 +45,36 @@
       background: #efe7dd;
     }
 
+    .language-switch {
+      display: inline-flex;
+      gap: 4px;
+      margin-left: 12px;
+    }
+
+    .nav-separator {
+      margin-left: 14px;
+      color: #b9aa9b;
+      line-height: 35px;
+    }
+
+    .language-switch button {
+      color: #4a3a30;
+      font: inherit;
+      font-size: 15px;
+      line-height: 1;
+      text-transform: uppercase;
+      padding: 10px 12px;
+      border: 0;
+      border-radius: 999px;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .language-switch button[aria-pressed="true"],
+    .language-switch button:hover {
+      background: #efe7dd;
+    }
+
     main {
       max-width: 760px;
       margin: 0 auto;
@@ -94,6 +124,20 @@
         padding: 8px 9px;
       }
 
+      .language-switch button {
+        font-size: 12px;
+        padding: 8px 9px;
+      }
+
+      .language-switch {
+        margin-left: 4px;
+      }
+
+      .nav-separator {
+        margin-left: 6px;
+        line-height: 28px;
+      }
+
       main {
         max-width: 270px;
         min-height: calc(100vh - 49px);
@@ -117,16 +161,60 @@
 </head>
 <body>
   <nav class="site-nav" aria-label="Main navigation">
-    <a href="index.html">Home</a>
-    <a href="details.html">Details</a>
+    <a href="index.html" data-i18n="navHome">Home</a>
+    <a href="details.html" data-i18n="navDetails">Details</a>
     <a href="rsvp.html">RSVP</a>
-    <a href="gifts.html" aria-current="page">Gifts</a>
+    <a href="gifts.html" aria-current="page" data-i18n="navGifts">Gifts</a>
+    <span class="nav-separator" aria-hidden="true">|</span>
+    <span class="language-switch" aria-label="Language">
+      <button type="button" data-lang="en" aria-pressed="true">🇬🇧 EN</button>
+      <button type="button" data-lang="it" aria-pressed="false">🇮🇹 IT</button>
+    </span>
   </nav>
 
   <main>
-    <h1>Gifts</h1>
-    <p>Your presence is the greatest gift we could ask for. We are lucky to have everything we need and more, but if you wish to contribute to our honeymoon, you may do so using the IBAN below. </p>
+    <h1 data-i18n="giftsTitle">Gifts</h1>
+    <p data-i18n="giftsText">Your presence is the greatest gift we could ask for. We are lucky to have everything we need and more, but if you wish to contribute to our honeymoon, you may do so using the IBAN below. </p>
     <div class="iban">IT12 Y036 6901 6000 9980 7594 084</div>
   </main>
+  <script>
+    const translations = {
+      en: {
+        navHome: "Home",
+        navDetails: "Details",
+        navGifts: "Gifts",
+        pageTitle: "Gifts | Clara & Tommaso",
+        giftsTitle: "Gifts",
+        giftsText: "Your presence is the greatest gift we could ask for. We are lucky to have everything we need and more, but if you wish to contribute to our honeymoon, you may do so using the IBAN below."
+      },
+      it: {
+        navHome: "Home",
+        navDetails: "Dettagli",
+        navGifts: "Regali",
+        pageTitle: "Regali | Clara & Tommaso",
+        giftsTitle: "Regali",
+        giftsText: "La vostra presenza è il regalo più grande che potremmo desiderare. Siamo fortunati ad avere tutto ciò di cui abbiamo bisogno e anche di più, ma se desiderate contribuire al nostro viaggio di nozze, potete farlo utilizzando l'IBAN qui sotto."
+      }
+    };
+
+    function applyLanguage(language) {
+      const copy = translations[language] || translations.en;
+      document.documentElement.lang = language;
+      document.title = copy.pageTitle;
+      document.querySelectorAll("[data-i18n]").forEach((element) => {
+        element.textContent = copy[element.dataset.i18n];
+      });
+      document.querySelectorAll("[data-lang]").forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.lang === language));
+      });
+      localStorage.setItem("weddingLanguage", language);
+    }
+
+    document.querySelectorAll("[data-lang]").forEach((button) => {
+      button.addEventListener("click", () => applyLanguage(button.dataset.lang));
+    });
+
+    applyLanguage(localStorage.getItem("weddingLanguage") || "en");
+  </script>
 </body>
 </html>
