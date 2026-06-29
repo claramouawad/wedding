@@ -10,7 +10,7 @@
       margin: 0;
       padding: 0;
       min-height: 100%;
-      background: white url("background.png") top center / 100% auto no-repeat;
+      background: white url("background.png") top center / 100% auto repeat-y;
       color: #4a3a30;
       font-family: Georgia, "Times New Roman", serif;
     }
@@ -85,20 +85,24 @@
       }
 
       main {
-        padding: 36px 12px;
+        max-width: 300px;
+        padding: 32px 10px;
       }
 
       h1 {
-        font-size: 30px;
+        font-size: 24px;
       }
 
       p {
-        max-width: 320px;
-        font-size: 16px;
+        max-width: 260px;
+        font-size: 13px;
       }
 
       .form-frame {
-        min-height: 900px;
+        width: 125%;
+        min-height: 1125px;
+        transform: scale(0.8);
+        transform-origin: top left;
       }
     }
   </style>

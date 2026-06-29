@@ -10,7 +10,7 @@
       margin: 0;
       padding: 0;
       min-height: 100%;
-      background: white url("background.png") top center / 100% auto no-repeat;
+      background: white url("background.png") top center / 100% auto repeat-y;
       color: #4a3a30;
       font-family: Georgia, "Times New Roman", serif;
     }
@@ -159,42 +159,47 @@
       }
 
       main {
-        padding: 36px 18px;
+        max-width: 270px;
+        padding: 32px 10px;
       }
 
       h1 {
-        margin-bottom: 18px;
-        font-size: 30px;
+        margin-bottom: 14px;
+        font-size: 24px;
       }
 
       .date-note {
-        margin-bottom: 26px;
-        font-size: 16px;
+        margin-bottom: 22px;
+        font-size: 13px;
       }
 
       .events {
-        gap: 34px;
+        gap: 28px;
       }
 
       .event h2 {
-        font-size: 22px;
+        font-size: 19px;
       }
 
       .event-icon {
-        width: 22px;
-        height: 22px;
+        width: 19px;
+        height: 19px;
       }
 
       .event p {
-        font-size: 16px;
+        font-size: 13px;
       }
 
       .event .description {
-        font-size: 15px;
+        font-size: 12px;
       }
 
       .map-link iframe {
-        height: 220px;
+        height: 190px;
+      }
+
+      .map-link span {
+        font-size: 12px;
       }
     }
   </style>
