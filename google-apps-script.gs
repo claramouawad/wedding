@@ -1,5 +1,5 @@
 const SHEET_NAME = "RSVP";
-const SPREADSHEET_ID = "1IxBXCloilCb5Y1hM7g8kTaDuOsSGugUIRX2iQxbijFM"
+const SPREADSHEET_ID = "1IxBXCloilCb5Y1hM7g8kTaDuOsSGugUIRX2iQxbijFM";
 
 function doPost(e) {
   const sheet = getSheet();
