@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Details | Clara & Tommaso</title>
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      background: white url("background.png") top center / 100% auto no-repeat;
+      color: #4a3a30;
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    .site-nav {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.94);
+      border-bottom: 1px solid #e8e0d8;
+      backdrop-filter: blur(10px);
+    }
+
+    .site-nav a {
+      color: #4a3a30;
+      font-size: 15px;
+      line-height: 1;
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0;
+      padding: 10px 14px;
+      border-radius: 999px;
+    }
+
+    .site-nav a:hover,
+    .site-nav a[aria-current="page"] {
+      background: #efe7dd;
+    }
+
+    main {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 56px 24px;
+    }
+
+    h1 {
+      margin: 0 0 24px;
+      font-size: 42px;
+      font-weight: 400;
+      line-height: 1.1;
+      text-align: center;
+    }
+
+    .date-note {
+      margin: 0 auto 32px;
+      max-width: 620px;
+      font-size: 20px;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    .events {
+      display: grid;
+      gap: 44px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .event {
+      text-align: center;
+    }
+
+    .event h2 {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin: 0 0 12px;
+      font-size: 28px;
+      font-weight: 400;
+      line-height: 1.2;
+    }
+
+    .event-icon {
+      width: 28px;
+      height: 28px;
+      stroke: currentColor;
+      stroke-width: 1.7;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+      flex: 0 0 auto;
+    }
+
+    .event p {
+      margin: 4px 0;
+      font-size: 20px;
+      line-height: 1.5;
+    }
+
+    .event .description {
+      max-width: 620px;
+      margin: 18px auto 0;
+      font-size: 18px;
+    }
+
+    .event strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 14px;
+      font-weight: 400;
+      text-transform: uppercase;
+    }
+
+    .map-link {
+      display: block;
+      margin-top: 18px;
+      overflow: hidden;
+      color: inherit;
+      text-decoration: none;
+      border: 1px solid #e8e0d8;
+      border-radius: 8px;
+      background: #f7f3ee;
+    }
+
+    .map-link iframe {
+      display: block;
+      width: 100%;
+      height: 260px;
+      border: 0;
+      pointer-events: none;
+    }
+
+    .map-link span {
+      display: block;
+      padding: 12px 16px;
+      font-size: 15px;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+  <nav class="site-nav" aria-label="Main navigation">
+    <a href="index.html">Home</a>
+    <a href="details.html" aria-current="page">Details</a>
+    <a href="rsvp.html">RSVP</a>
+    <a href="gifts.html">Gifts</a>
+  </nav>
+
+  <main>
+    <h1>Details</h1>
+    <p class="date-note">Our wedding will take place on Saturday 03 July 2027.</p>
+    <ul class="events">
+      <li class="event">
+        <h2>
+          <svg class="event-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 3v5" />
+            <path d="M9.5 5.5h5" />
+            <path d="M5 21V10l7-5 7 5v11" />
+            <path d="M9 21v-6a3 3 0 0 1 6 0v6" />
+            <path d="M3 21h18" />
+          </svg>
+          Ceremony
+        </h2>
+        <p><strong>San Martin del Vento</strong></p>
+        <p>at 15:00</p>
+        <p>Loc. San Martino del Vento, 16024 Lumarzo GE, Italy</p>
+        <p class="description">This is where our wedding ceremony will take place. The church was first built in the 5th century and has been renovated several times throughout its long history.</p>
+        <a class="map-link" href="https://maps.app.goo.gl/ByJrPwrvvfKSUZzq8" target="_blank" rel="noopener noreferrer">
+          <iframe
+            title="Map preview for San Martin del Vento"
+            loading="lazy"
+            src="https://www.google.com/maps?q=San%20Martin%20del%20Vento%2C%20Loc.%20San%20Martino%20del%20Vento%2C%2016024%20Lumarzo%20GE%2C%20Italy&output=embed">
+          </iframe>
+          <span>Open in Google Maps</span>
+        </a>
+      </li>
+      <li class="event">
+        <h2>
+          <svg class="event-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 21V9" />
+            <path d="M20 21V9" />
+            <path d="M4 9V5h4v4" />
+            <path d="M16 9V5h4v4" />
+            <path d="M8 21V11h8v10" />
+            <path d="M11 21v-5a1 1 0 0 1 2 0v5" />
+            <path d="M3 21h18" />
+          </svg>
+          Reception
+        </h2>
+        <p><strong>Castello Giacomo Becchi</strong></p>
+        <p>at 17:00</p>
+        <p>Località Tercesi, 99, 16029 Scoffera GE, Italy</p>
+        <p class="description">After the ceremony, we will gather here for a welcome cocktail, followed by a seated dinner and an evening party with dancing.</p>
+        <a class="map-link" href="https://maps.app.goo.gl/vZxnKhwPGma569Me6" target="_blank" rel="noopener noreferrer">
+          <iframe
+            title="Map preview for Castello Giacomo Becchi"
+            loading="lazy"
+            src="https://www.google.com/maps?q=Castello%20Giacomo%20Becchi%2C%20Localit%C3%A0%20Tercesi%2C%2099%2C%2016029%20Scoffera%20GE%2C%20Italy&output=embed">
+          </iframe>
+          <span>Open in Google Maps</span>
+        </a>
+      </li>
+    </ul>
+  </main>
+</body>
+</html>

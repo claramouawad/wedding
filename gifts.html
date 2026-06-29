@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gifts | Clara & Tommaso</title>
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      background: white url("background.png") top center / 100% auto no-repeat;
+      color: #4a3a30;
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    .site-nav {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.94);
+      border-bottom: 1px solid #e8e0d8;
+      backdrop-filter: blur(10px);
+    }
+
+    .site-nav a {
+      color: #4a3a30;
+      font-size: 15px;
+      line-height: 1;
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0;
+      padding: 10px 14px;
+      border-radius: 999px;
+    }
+
+    .site-nav a:hover,
+    .site-nav a[aria-current="page"] {
+      background: #efe7dd;
+    }
+
+    main {
+      max-width: 760px;
+      margin: 0 auto;
+      min-height: calc(100vh - 58px);
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 56px 24px;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0 0 16px;
+      font-size: 42px;
+      font-weight: 400;
+      line-height: 1.1;
+    }
+
+    p {
+      margin: 0 auto 24px;
+      max-width: 600px;
+      font-size: 20px;
+      line-height: 1.5;
+    }
+
+    .iban {
+      display: inline-block;
+      padding: 14px 18px;
+      color: #4a3a30;
+      font-size: 20px;
+      line-height: 1.4;
+      border: 1px solid #e8e0d8;
+      border-radius: 8px;
+      background: #f7f3ee;
+      overflow-wrap: anywhere;
+    }
+  </style>
+</head>
+<body>
+  <nav class="site-nav" aria-label="Main navigation">
+    <a href="index.html">Home</a>
+    <a href="details.html">Details</a>
+    <a href="rsvp.html">RSVP</a>
+    <a href="gifts.html" aria-current="page">Gifts</a>
+  </nav>
+
+  <main>
+    <h1>Gifts</h1>
+    <p>Your presence is the greatest gift we could ask for. We are lucky to have everything we need and more, but if you wish to contribute to our honeymoon, you may do so using the IBAN below.</p>
+    <div class="iban">IT12 Y036 6901 6000 9980 7594 084</div>
+  </main>
+</body>
+</html>
