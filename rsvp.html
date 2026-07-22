@@ -638,14 +638,38 @@
 
       localStorage.setItem("weddingLanguage", language);
 
-      if (
-        currentGroup &&
-        !document
-          .querySelector("#guest-selection-step")
-          .classList.contains("hidden")
-      ) {
-        renderGuestSelector();
-      }
+      if (!currentGroup) return;
+
+        const selectionStepVisible =
+          !document
+            .querySelector("#guest-selection-step")
+            .classList.contains("hidden");
+
+        const detailsStepVisible =
+          !document
+            .querySelector("#guest-details-step")
+            .classList.contains("hidden");
+
+        if (selectionStepVisible) {
+          renderGuestSelector();
+        }
+
+        if (detailsStepVisible) {
+          saveCurrentFormValues();
+          rerenderGuestForms();
+        }
+
+        const confirmationStepVisible =
+          !document
+            .querySelector("#confirmation-step")
+            .classList.contains("hidden");
+
+        if (confirmationStepVisible) {
+          showElementMessage(
+            document.querySelector("#confirmation-message"),
+            copy().success
+          );
+        }
     }
 
     function showElementMessage(element, text) {
@@ -760,9 +784,13 @@
     }
 
     function renderGuestSelector() {
-      const selector =
-        document.querySelector("#guest-selector");
+      const selectedIds = new Set(
+        Array.from(
+          document.querySelectorAll("[data-select-guest]:checked")
+        ).map((checkbox) => checkbox.value)
+      );
 
+      const selector = document.querySelector("#guest-selector");
       selector.innerHTML = "";
 
       availableGuests.forEach((guest) => {
@@ -775,12 +803,17 @@
             : "Plus one"
           : guest.name;
 
+        const checked = selectedIds.has(guest.guestId)
+          ? "checked"
+          : "";
+
         card.innerHTML = `
           <label class="guest-select-label">
             <input
               type="checkbox"
               data-select-guest
               value="${escapeHtml(guest.guestId)}"
+              ${checked}
             />
             <span>${escapeHtml(displayName)}</span>
           </label>
@@ -982,6 +1015,48 @@
 
       showCurrentGuest();
     }
+
+    function saveCurrentFormValues() {
+      document.querySelectorAll(".guest-section").forEach((section) => {
+        const guestId = section.dataset.guestId;
+
+        const guest = selectedGuests.find(
+          (item) => item.guestId === guestId
+        );
+
+        if (!guest) return;
+
+        guest.response = {
+          name:
+            section.querySelector("[data-guest-name]")?.value.trim() || "",
+          ceremony:
+            section.querySelector(
+              `input[name="ceremony-${CSS.escape(guestId)}"]:checked`
+            )?.value || "",
+          reception:
+            section.querySelector(
+              `input[name="reception-${CSS.escape(guestId)}"]:checked`
+            )?.value || "",
+          food:
+            section.querySelector("[data-guest-food]")?.value.trim() || "",
+          song:
+            section.querySelector("[data-guest-song]")?.value.trim() || ""
+        };
+      });
+    }
+
+    function rerenderGuestForms() {
+      const guestList = document.querySelector("#guest-list");
+
+      guestList.innerHTML = "";
+
+      selectedGuests.forEach((guest, index) => {
+        guestList.appendChild(createGuestForm(guest, index));
+      });
+
+      showCurrentGuest();
+    }
+
 
     function showCurrentGuest() {
       const pages =
