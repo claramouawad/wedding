@@ -262,6 +262,12 @@
       display: block;
     }
 
+    .success-message {
+      font-size: 24px;
+      line-height: 1.4;
+      margin: 0 auto 20px;
+    }
+
     @media (max-width: 600px) {
       .site-nav {
         gap: 3px;
@@ -311,6 +317,10 @@
       }
 
       .guest-header h2 {
+        font-size: 18px;
+      }
+
+      .success-message {
         font-size: 18px;
       }
 
@@ -399,7 +409,7 @@
   <main>
     <h1>RSVP</h1>
 
-    <p data-i18n="rsvpIntro">
+    <p id="rsvp-intro" data-i18n="rsvpIntro">
       Please let us know if you will be joining us by 01/06/2027.
     </p>
 
@@ -1103,6 +1113,12 @@
       document.querySelector("#guest-list").innerHTML = "";
       document.querySelector("#invitation-code").value = "";
 
+      document.querySelector("#rsvp-intro").style.display = "";
+
+      document
+        .querySelector("#confirmation-message")
+        .classList.remove("success-message");
+
       document
         .querySelector("#rsvp-form")
         .classList.add("hidden");
@@ -1238,6 +1254,12 @@
           .querySelector("#confirmation-step")
           .classList.remove("hidden");
 
+        document.querySelector("#rsvp-intro").style.display = "none";
+
+        document
+          .querySelector("#confirmation-message")
+          .classList.add("success-message");
+          
         showElementMessage(
           document.querySelector("#confirmation-message"),
           copy().success
