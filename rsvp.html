@@ -453,6 +453,15 @@
         <div class="button-row">
 
           <button
+            class="secondary-button"
+            type="button"
+            id="back-to-code"
+            data-i18n="changeCode"
+          >
+            Use another code
+          </button>
+
+          <button
             class="primary-button"
             type="button"
             id="fill-details"
@@ -460,6 +469,7 @@
           >
             Fill details
           </button>
+
         </div>
 
         <p class="form-message" id="selection-message" role="status"></p>
@@ -1232,6 +1242,10 @@
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
     }
+
+    document
+      .querySelector("#back-to-code")
+      .addEventListener("click", resetLookup);
 
     document.querySelectorAll("[data-lang]").forEach((button) => {
       button.addEventListener("click", () => {
