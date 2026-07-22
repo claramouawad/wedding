@@ -939,7 +939,7 @@
 
     document
       .querySelector("#rsvp-form")
-      .addEventListener("submit", async (event) => {
+      .addEventListener("submit", (event) => {
         event.preventDefault();
 
         const message =
@@ -970,28 +970,22 @@
           guests: selectedGuests
         };
 
-        try {
-          await fetch(GOOGLE_SCRIPT_URL, {
-            method: "POST",
-            mode: "no-cors",
-            headers: {
-              "Content-Type": "text/plain;charset=utf-8"
-            },
-            body: JSON.stringify(payload)
-          });
+        fetch(GOOGLE_SCRIPT_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: {
+            "Content-Type": "text/plain;charset=utf-8"
+          },
+          body: JSON.stringify(payload)
+        }).catch((error) => {
+          console.error("Background RSVP request error:", error);
+        });
 
-          event.currentTarget.reset();
-          document.querySelector("#guest-list").innerHTML = "";
+        // Do not wait for Google's unreadable no-cors response.
+        event.currentTarget.reset();
+        document.querySelector("#guest-list").innerHTML = "";
 
-          showElementMessage(message, copy().success);
-        } catch (error) {
-          console.error(error);
-
-          event.currentTarget.reset();
-          document.querySelector("#guest-list").innerHTML = "";
-
-          showElementMessage(message, copy().success);
-        }
+        showElementMessage(message, copy().success);
       });
 
     applyLanguage(currentLanguage);
