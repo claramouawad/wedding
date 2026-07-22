@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>RSVP | Clara & Tommaso</title>
 
+  
+
   <style>
     html, body {
       margin: 0;
@@ -312,6 +314,58 @@
         padding: 8px 10px;
       }
     }
+
+    .lookup-box {
+      display: grid;
+      gap: 14px;
+      max-width: 520px;
+      margin: 0 auto 28px;
+      padding: 22px;
+      border: 1px solid #d9cfc3;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.55);
+      text-align: left;
+    }
+
+    .lookup-box button {
+      justify-self: center;
+    }
+
+    .group-title {
+      margin: 0 0 18px;
+      font-size: 26px;
+      font-weight: 400;
+      text-align: center;
+    }
+
+    .guest-selector {
+      display: grid;
+      gap: 12px;
+    }
+
+    .guest-select-card {
+      padding: 14px;
+      border: 1px solid #d9cfc3;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.55);
+    }
+
+    .guest-select-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0;
+      cursor: pointer;
+    }
+
+    .guest-select-label input {
+      width: auto;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
   </style>
 </head>
 <body>
@@ -329,241 +383,613 @@
 
   <main>
     <h1>RSVP</h1>
-    <p data-i18n="rsvpIntro">Please let us know if you will be joining us by 01/06/2027.</p>
 
-    <form class="rsvp-form" id="rsvp-form">
+    <p data-i18n="rsvpIntro">
+      Please let us know if you will be joining us by 01/06/2027.
+    </p>
+
+    <section class="lookup-box" id="lookup-box">
+      <div>
+        <label for="invitation-code" data-i18n="codeLabel">
+          Invitation code
+        </label>
+
+        <input
+          id="invitation-code"
+          type="text"
+          autocomplete="off"
+          data-i18n-placeholder="codePlaceholder"
+          placeholder="Enter your invitation code"
+        />
+      </div>
+
+      <button
+        class="primary-button"
+        type="button"
+        id="find-invitation"
+        data-i18n="findInvitation"
+      >
+        Find invitation
+      </button>
+
+      <p class="form-message" id="lookup-message" role="status"></p>
+    </section>
+
+    <form class="rsvp-form hidden" id="rsvp-form">
+      <h2 class="group-title" id="group-title"></h2>
+
+      <fieldset>
+        <legend data-i18n="selectGuests">
+          Who are you responding for?
+        </legend>
+
+        <div class="guest-selector" id="guest-selector"></div>
+      </fieldset>
+
       <div id="guest-list"></div>
 
-      <div class="another-person">
-        <p data-i18n="anotherQuestion">Do you want to RSVP for another person?</p>
-        <div class="button-row">
-          <button class="secondary-button" type="button" id="add-guest" data-i18n="yesAddGuest">Yes, add another person</button>
-          <button class="primary-button" type="submit" data-i18n="noSubmit">No, submit RSVP</button>
-        </div>
+      <div class="button-row">
+        <button
+          class="secondary-button"
+          type="button"
+          id="change-code"
+          data-i18n="changeCode"
+        >
+          Use another code
+        </button>
+
+        <button
+          class="primary-button"
+          type="submit"
+          data-i18n="submitRsvp"
+        >
+          Submit RSVP
+        </button>
       </div>
 
       <p class="form-message" id="form-message" role="status"></p>
     </form>
   </main>
   <script>
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbySUrKA8C6ozeDAoEpvzbJiD7zeIaCH-vV2I9q1ubWoemEZ17ERTbsiSU_RlVxh5JIF/exec";
-    let currentLanguage = localStorage.getItem("weddingLanguage") || "en";
-    let guestCount = 0;
+    const GOOGLE_SCRIPT_URL =
+      "https://script.google.com/macros/s/AKfycbySUrKA8C6ozeDAoEpvzbJiD7zeIaCH-vV2I9q1ubWoemEZ17ERTbsiSU_RlVxh5JIF/exec";
+
+    let currentLanguage =
+      localStorage.getItem("weddingLanguage") || "en";
+
+    let currentGroup = null;
+    let availableGuests = [];
 
     const translations = {
       en: {
         navHome: "Home",
         navDetails: "Details",
         navGifts: "Gifts",
-        rsvpIntro: "Please let us know if you will be joining us by 01/06/2027.",
-        anotherQuestion: "Do you want to RSVP for another person?",
-        yesAddGuest: "Yes, add another person",
-        noSubmit: "No, submit RSVP",
-        guestLabel: "Guest",
-        nameLabel: "Full name",
+        rsvpIntro:
+          "Please let us know if you will be joining us by 01/06/2027.",
+        codeLabel: "Invitation code",
+        codePlaceholder: "Enter your invitation code",
+        findInvitation: "Find invitation",
+        selectGuests: "Who are you responding for?",
+        changeCode: "Use another code",
+        submitRsvp: "Submit RSVP",
         ceremonyLabel: "Will this guest attend the ceremony?",
         receptionLabel: "Will this guest attend the reception?",
         yesAttend: "Yes, will attend",
         noAttend: "No, cannot attend",
         foodLabel: "Food allergies or intolerances",
-        foodPlaceholder: "Please list any allergies, intolerances, or dietary needs",
+        foodPlaceholder:
+          "Please list any allergies, intolerances, or dietary needs",
         songLabel: "Suggested song for the party",
         songPlaceholder: "Song title and artist",
-        removeGuest: "Remove",
-        setupMissing: "RSVP saving is not connected yet. Add your Google Apps Script URL in rsvp.html.",
+        plusOneName: "Full name of your guest",
+        searching: "Searching...",
+        codeNotFound: "Invitation code not found.",
+        codeRequired: "Please enter your invitation code.",
+        selectAtLeastOne:
+          "Please select at least one person to respond for.",
         sending: "Sending RSVP...",
         success: "Thank you. Your RSVP has been sent.",
         error: "Something went wrong. Please try again."
       },
+
       it: {
         navHome: "Home",
         navDetails: "Dettagli",
         navGifts: "Regali",
-        rsvpIntro: "Fateci sapere se sarete con noi entro il 01/06/2027.",
-        anotherQuestion: "Vuoi confermare la presenza per un'altra persona?",
-        yesAddGuest: "Si, aggiungi un'altra persona",
-        noSubmit: "No, invia RSVP",
-        guestLabel: "Ospite",
-        nameLabel: "Nome e cognome",
-        ceremonyLabel: "Questa persona parteciperà alla cerimonia?",
-        receptionLabel: "Questa persona parteciperà al ricevimento?",
-        yesAttend: "Si, parteciperà",
+        rsvpIntro:
+          "Fateci sapere se sarete con noi entro il 01/06/2027.",
+        codeLabel: "Codice dell'invito",
+        codePlaceholder: "Inserisci il codice dell'invito",
+        findInvitation: "Trova invito",
+        selectGuests: "Per chi vuoi confermare la presenza?",
+        changeCode: "Usa un altro codice",
+        submitRsvp: "Invia RSVP",
+        ceremonyLabel:
+          "Questa persona parteciperà alla cerimonia?",
+        receptionLabel:
+          "Questa persona parteciperà al ricevimento?",
+        yesAttend: "Sì, parteciperà",
         noAttend: "No, non parteciperà",
         foodLabel: "Allergie o intolleranze alimentari",
-        foodPlaceholder: "Indica eventuali allergie, intolleranze o esigenze alimentari",
+        foodPlaceholder:
+          "Indica eventuali allergie, intolleranze o esigenze alimentari",
         songLabel: "Canzone suggerita per la festa",
         songPlaceholder: "Titolo e artista",
-        removeGuest: "Rimuovi",
-        setupMissing: "Il salvataggio RSVP non è ancora collegato. Aggiungi l'URL di Google Apps Script in rsvp.html.",
+        plusOneName: "Nome e cognome dell'accompagnatore",
+        searching: "Ricerca in corso...",
+        codeNotFound: "Codice dell'invito non trovato.",
+        codeRequired: "Inserisci il codice dell'invito.",
+        selectAtLeastOne:
+          "Seleziona almeno una persona per cui rispondere.",
         sending: "Invio RSVP...",
         success: "Grazie. Il tuo RSVP è stato inviato.",
         error: "Qualcosa è andato storto. Riprova."
       }
     };
 
+    function copy() {
+      return translations[currentLanguage] || translations.en;
+    }
+
     function applyLanguage(language) {
-      const copy = translations[language] || translations.en;
       currentLanguage = language;
       document.documentElement.lang = language;
+
       document.querySelectorAll("[data-i18n]").forEach((element) => {
-        element.textContent = copy[element.dataset.i18n];
+        const value = copy()[element.dataset.i18n];
+        if (value) element.textContent = value;
       });
-      document.querySelectorAll("[data-i18n-placeholder]").forEach((element) => {
-        element.placeholder = copy[element.dataset.i18nPlaceholder];
-      });
+
+      document
+        .querySelectorAll("[data-i18n-placeholder]")
+        .forEach((element) => {
+          const value =
+            copy()[element.dataset.i18nPlaceholder];
+
+          if (value) element.placeholder = value;
+        });
+
       document.querySelectorAll("[data-lang]").forEach((button) => {
-        button.setAttribute("aria-pressed", String(button.dataset.lang === language));
+        button.setAttribute(
+          "aria-pressed",
+          String(button.dataset.lang === language)
+        );
       });
+
       localStorage.setItem("weddingLanguage", language);
-      renderGuestLabels();
+
+      if (currentGroup) {
+        renderGuestSelector();
+      }
     }
 
-    function createGuestSection() {
-      guestCount += 1;
-      const guestId = guestCount;
+    function showElementMessage(element, text) {
+      element.textContent = text;
+      element.classList.add("is-visible");
+    }
+
+    function hideElementMessage(element) {
+      element.textContent = "";
+      element.classList.remove("is-visible");
+    }
+
+    function lookupInvitation(code) {
+      return new Promise((resolve, reject) => {
+        const callbackName =
+          "invitationCallback_" + Date.now();
+
+        const script = document.createElement("script");
+
+        const timeout = setTimeout(() => {
+          cleanup();
+          reject(new Error("Lookup timed out."));
+        }, 10000);
+
+        function cleanup() {
+          clearTimeout(timeout);
+          script.remove();
+          delete window[callbackName];
+        }
+
+        window[callbackName] = function (response) {
+          cleanup();
+          resolve(response);
+        };
+
+        script.onerror = function () {
+          cleanup();
+          reject(new Error("Could not contact RSVP service."));
+        };
+
+        const params = new URLSearchParams({
+          action: "getGroup",
+          code: code,
+          callback: callbackName
+        });
+
+        script.src =
+          GOOGLE_SCRIPT_URL + "?" + params.toString();
+
+        document.body.appendChild(script);
+      });
+    }
+
+    async function findInvitation() {
+      const codeInput =
+        document.querySelector("#invitation-code");
+
+      const lookupMessage =
+        document.querySelector("#lookup-message");
+
+      const code = codeInput.value.trim().toUpperCase();
+
+      hideElementMessage(lookupMessage);
+
+      if (!code) {
+        showElementMessage(
+          lookupMessage,
+          copy().codeRequired
+        );
+        return;
+      }
+
+      showElementMessage(
+        lookupMessage,
+        copy().searching
+      );
+
+      try {
+        const response = await lookupInvitation(code);
+
+        if (!response.ok) {
+          throw new Error(
+            response.error || copy().codeNotFound
+          );
+        }
+
+        currentGroup = response.group;
+        availableGuests = response.guests || [];
+
+        document.querySelector("#group-title").textContent =
+          currentGroup.groupName;
+
+        document
+          .querySelector("#lookup-box")
+          .classList.add("hidden");
+
+        document
+          .querySelector("#rsvp-form")
+          .classList.remove("hidden");
+
+        renderGuestSelector();
+        hideElementMessage(lookupMessage);
+      } catch (error) {
+        showElementMessage(
+          lookupMessage,
+          error.message || copy().codeNotFound
+        );
+      }
+    }
+
+    function isPlusOne(guest) {
+      return String(guest.type || "")
+        .trim()
+        .toLowerCase() === "plus one";
+    }
+
+    function renderGuestSelector() {
+      const selector =
+        document.querySelector("#guest-selector");
+
+      selector.innerHTML = "";
+
+      availableGuests.forEach((guest) => {
+        const card = document.createElement("div");
+        card.className = "guest-select-card";
+
+        const displayName = isPlusOne(guest)
+          ? currentLanguage === "it"
+            ? "Accompagnatore"
+            : "Plus one"
+          : guest.name;
+
+        card.innerHTML = `
+          <label class="guest-select-label">
+            <input
+              type="checkbox"
+              data-select-guest
+              value="${escapeHtml(guest.guestId)}"
+            />
+            <span>${escapeHtml(displayName)}</span>
+          </label>
+        `;
+
+        selector.appendChild(card);
+      });
+
+      document.querySelector("#guest-list").innerHTML = "";
+    }
+
+    function createGuestForm(guest) {
       const section = document.createElement("section");
       section.className = "guest-section";
-      section.dataset.guestId = String(guestId);
+      section.dataset.guestId = guest.guestId;
+
+      const plusOne = isPlusOne(guest);
+
+      const heading = plusOne
+        ? currentLanguage === "it"
+          ? "Accompagnatore"
+          : "Plus one"
+        : guest.name;
+
+      const nameField = plusOne
+        ? `
+          <div>
+            <label for="name-${escapeHtml(guest.guestId)}">
+              ${escapeHtml(copy().plusOneName)}
+            </label>
+
+            <input
+              id="name-${escapeHtml(guest.guestId)}"
+              data-guest-name
+              type="text"
+              required
+            />
+          </div>
+        `
+        : `
+          <input
+            data-guest-name
+            type="hidden"
+            value="${escapeHtml(guest.name)}"
+          />
+        `;
+
       section.innerHTML = `
         <div class="guest-header">
-          <h2><span data-guest-title></span></h2>
-          <button class="remove-guest" type="button" data-remove-guest data-i18n="removeGuest"></button>
+          <h2>${escapeHtml(heading)}</h2>
         </div>
 
-        <div>
-          <label for="guest-${guestId}-name" data-i18n="nameLabel"></label>
-          <input id="guest-${guestId}-name" name="guest-${guestId}-name" type="text" autocomplete="name" required />
-        </div>
+        ${nameField}
 
         <fieldset>
-          <legend data-i18n="ceremonyLabel"></legend>
+          <legend>${escapeHtml(copy().ceremonyLabel)}</legend>
+
           <div class="choice-group">
             <label class="choice">
-              <input type="radio" name="guest-${guestId}-ceremony" value="Yes" required />
-              <span data-i18n="yesAttend"></span>
+              <input
+                type="radio"
+                name="ceremony-${escapeHtml(guest.guestId)}"
+                value="Yes"
+                required
+              />
+              <span>${escapeHtml(copy().yesAttend)}</span>
             </label>
+
             <label class="choice">
-              <input type="radio" name="guest-${guestId}-ceremony" value="No" />
-              <span data-i18n="noAttend"></span>
+              <input
+                type="radio"
+                name="ceremony-${escapeHtml(guest.guestId)}"
+                value="No"
+              />
+              <span>${escapeHtml(copy().noAttend)}</span>
             </label>
           </div>
         </fieldset>
 
         <fieldset>
-          <legend data-i18n="receptionLabel"></legend>
+          <legend>${escapeHtml(copy().receptionLabel)}</legend>
+
           <div class="choice-group">
             <label class="choice">
-              <input type="radio" name="guest-${guestId}-reception" value="Yes" required />
-              <span data-i18n="yesAttend"></span>
+              <input
+                type="radio"
+                name="reception-${escapeHtml(guest.guestId)}"
+                value="Yes"
+                required
+              />
+              <span>${escapeHtml(copy().yesAttend)}</span>
             </label>
+
             <label class="choice">
-              <input type="radio" name="guest-${guestId}-reception" value="No" />
-              <span data-i18n="noAttend"></span>
+              <input
+                type="radio"
+                name="reception-${escapeHtml(guest.guestId)}"
+                value="No"
+              />
+              <span>${escapeHtml(copy().noAttend)}</span>
             </label>
           </div>
         </fieldset>
 
         <div>
-          <label for="guest-${guestId}-food" data-i18n="foodLabel"></label>
-          <textarea id="guest-${guestId}-food" name="guest-${guestId}-food" data-i18n-placeholder="foodPlaceholder"></textarea>
+          <label>${escapeHtml(copy().foodLabel)}</label>
+
+          <textarea
+            data-guest-food
+            placeholder="${escapeHtml(copy().foodPlaceholder)}"
+          ></textarea>
         </div>
 
         <div>
-          <label for="guest-${guestId}-song" data-i18n="songLabel"></label>
-          <input id="guest-${guestId}-song" name="guest-${guestId}-song" type="text" data-i18n-placeholder="songPlaceholder" />
+          <label>${escapeHtml(copy().songLabel)}</label>
+
+          <input
+            data-guest-song
+            type="text"
+            placeholder="${escapeHtml(copy().songPlaceholder)}"
+          />
         </div>
       `;
-      document.querySelector("#guest-list").appendChild(section);
-      applyLanguage(currentLanguage);
-      updateRemoveButtons();
+
+      return section;
     }
 
-    function renderGuestLabels() {
-      const copy = translations[currentLanguage] || translations.en;
-      document.querySelectorAll(".guest-section").forEach((section, index) => {
-        section.querySelector("[data-guest-title]").textContent = `${copy.guestLabel} ${index + 1}`;
-      });
+    function updateSelectedGuests() {
+      const guestList =
+        document.querySelector("#guest-list");
+
+      guestList.innerHTML = "";
+
+      document
+        .querySelectorAll("[data-select-guest]:checked")
+        .forEach((checkbox) => {
+          const guest = availableGuests.find(
+            (item) => item.guestId === checkbox.value
+          );
+
+          if (guest) {
+            guestList.appendChild(createGuestForm(guest));
+          }
+        });
     }
 
-    function updateRemoveButtons() {
-      const sections = document.querySelectorAll(".guest-section");
-      sections.forEach((section) => {
-        const removeButton = section.querySelector("[data-remove-guest]");
-        removeButton.hidden = sections.length === 1;
-      });
-      renderGuestLabels();
-    }
-
-    function collectGuests() {
-      return Array.from(document.querySelectorAll(".guest-section")).map((section) => {
+    function collectSelectedGuests() {
+      return Array.from(
+        document.querySelectorAll(".guest-section")
+      ).map((section) => {
         const guestId = section.dataset.guestId;
+
+        const invitedGuest = availableGuests.find(
+          (guest) => guest.guestId === guestId
+        );
+
         return {
-          name: section.querySelector(`#guest-${guestId}-name`).value.trim(),
-          ceremony: section.querySelector(`input[name="guest-${guestId}-ceremony"]:checked`)?.value || "",
-          reception: section.querySelector(`input[name="guest-${guestId}-reception"]:checked`)?.value || "",
-          food: section.querySelector(`#guest-${guestId}-food`).value.trim(),
-          song: section.querySelector(`#guest-${guestId}-song`).value.trim()
+          guestId: guestId,
+          type: invitedGuest.type,
+          name: section
+            .querySelector("[data-guest-name]")
+            .value.trim(),
+          ceremony:
+            section.querySelector(
+              `input[name="ceremony-${CSS.escape(guestId)}"]:checked`
+            )?.value || "",
+          reception:
+            section.querySelector(
+              `input[name="reception-${CSS.escape(guestId)}"]:checked`
+            )?.value || "",
+          food: section
+            .querySelector("[data-guest-food]")
+            .value.trim(),
+          song: section
+            .querySelector("[data-guest-song]")
+            .value.trim()
         };
       });
     }
 
-    function showMessage(messageKey, isVisible = true) {
-      const message = document.querySelector("#form-message");
-      message.textContent = translations[currentLanguage][messageKey];
-      message.classList.toggle("is-visible", isVisible);
+    function resetLookup() {
+      currentGroup = null;
+      availableGuests = [];
+
+      document.querySelector("#rsvp-form").reset();
+      document.querySelector("#guest-selector").innerHTML = "";
+      document.querySelector("#guest-list").innerHTML = "";
+      document.querySelector("#group-title").textContent = "";
+      document.querySelector("#invitation-code").value = "";
+
+      document
+        .querySelector("#rsvp-form")
+        .classList.add("hidden");
+
+      document
+        .querySelector("#lookup-box")
+        .classList.remove("hidden");
+
+      document.querySelector("#invitation-code").focus();
+    }
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
     }
 
     document.querySelectorAll("[data-lang]").forEach((button) => {
-      button.addEventListener("click", () => applyLanguage(button.dataset.lang));
+      button.addEventListener("click", () => {
+        applyLanguage(button.dataset.lang);
+      });
     });
 
-    document.querySelector("#add-guest").addEventListener("click", () => {
-      createGuestSection();
-      document.querySelector(".guest-section:last-child input").focus();
-    });
+    document
+      .querySelector("#find-invitation")
+      .addEventListener("click", findInvitation);
 
-    document.querySelector("#guest-list").addEventListener("click", (event) => {
-      if (!event.target.matches("[data-remove-guest]")) return;
-      event.target.closest(".guest-section").remove();
-      updateRemoveButtons();
-    });
+    document
+      .querySelector("#invitation-code")
+      .addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          findInvitation();
+        }
+      });
 
-    document.querySelector("#rsvp-form").addEventListener("submit", async (event) => {
-      event.preventDefault();
-      if (!event.currentTarget.reportValidity()) return;
+    document
+      .querySelector("#guest-selector")
+      .addEventListener("change", updateSelectedGuests);
 
-      if (GOOGLE_SCRIPT_URL.includes("PASTE_GOOGLE_APPS_SCRIPT")) {
-        showMessage("setupMissing");
-        return;
-      }
+    document
+      .querySelector("#change-code")
+      .addEventListener("click", resetLookup);
 
-      showMessage("sending");
-      const payload = {
-        language: currentLanguage,
-        submittedAt: new Date().toISOString(),
-        guests: collectGuests()
-      };
+    document
+      .querySelector("#rsvp-form")
+      .addEventListener("submit", async (event) => {
+        event.preventDefault();
 
-      try {
-        await fetch(GOOGLE_SCRIPT_URL, {
-          method: "POST",
-          mode: "no-cors",
-          headers: {
-            "Content-Type": "text/plain;charset=utf-8"
-          },
-          body: JSON.stringify(payload)
-        });
-        event.currentTarget.reset();
-        document.querySelector("#guest-list").innerHTML = "";
-        createGuestSection();
-        showMessage("success");
-      } catch (error) {
-        console.log(error);
-        showMessage("success");
-      }
-    });
+        const message =
+          document.querySelector("#form-message");
 
-    createGuestSection();
+        hideElementMessage(message);
+
+        const selectedGuests = collectSelectedGuests();
+
+        if (selectedGuests.length === 0) {
+          showElementMessage(
+            message,
+            copy().selectAtLeastOne
+          );
+          return;
+        }
+
+        if (!event.currentTarget.reportValidity()) {
+          return;
+        }
+
+        showElementMessage(message, copy().sending);
+
+        const payload = {
+          groupCode: currentGroup.groupCode,
+          language: currentLanguage,
+          submittedAt: new Date().toISOString(),
+          guests: selectedGuests
+        };
+
+        try {
+          await fetch(GOOGLE_SCRIPT_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: {
+              "Content-Type": "text/plain;charset=utf-8"
+            },
+            body: JSON.stringify(payload)
+          });
+
+          event.currentTarget.reset();
+          document.querySelector("#guest-list").innerHTML = "";
+
+          showElementMessage(message, copy().success);
+        } catch (error) {
+          console.error(error);
+          showElementMessage(message, copy().error);
+        }
+      });
+
     applyLanguage(currentLanguage);
   </script>
 </body>
