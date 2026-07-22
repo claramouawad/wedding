@@ -224,6 +224,7 @@
       flex-wrap: wrap;
       justify-content: center;
       gap: 10px;
+      margin-top: 24px;
     }
 
     .primary-button,
@@ -440,14 +441,6 @@
         </fieldset>
 
         <div class="button-row">
-          <button
-            class="secondary-button"
-            type="button"
-            id="change-code"
-            data-i18n="changeCode"
-          >
-            Use another code
-          </button>
 
           <button
             class="primary-button"
@@ -497,7 +490,24 @@
         </div>
 
         <p class="form-message" id="form-message" role="status"></p>
+
       </section>
+
+      <section class="hidden" id="confirmation-step">
+        <p class="form-message" id="confirmation-message" role="status"></p>
+
+        <div class="button-row">
+          <button
+            class="secondary-button"
+            type="button"
+            id="change-code"
+            data-i18n="changeCode"
+          >
+            Use another code
+          </button>
+        </div>
+      </section>
+
     </form>
   </main>
   <script>
@@ -620,8 +630,8 @@
 
       if (
         currentGroup &&
-        document
-          .querySelector("#guest-details-step")
+        !document
+          .querySelector("#guest-selection-step")
           .classList.contains("hidden")
       ) {
         renderGuestSelector();
@@ -1113,6 +1123,14 @@
       document
         .querySelector("#guest-details-step")
         .classList.add("hidden");
+      
+      document
+        .querySelector("#confirmation-step")
+        .classList.add("hidden");
+
+      hideElementMessage(
+        document.querySelector("#confirmation-message")
+      );
     }
 
     function escapeHtml(value) {
@@ -1209,18 +1227,21 @@
         document.querySelector("#guest-progress").textContent = "";
 
         document
-          .querySelector("#previous-guest")
+          .querySelector("#guest-selection-step")
           .classList.add("hidden");
 
         document
-          .querySelector("#next-guest")
+          .querySelector("#guest-details-step")
           .classList.add("hidden");
 
         document
-          .querySelector("#submit-rsvp")
-          .classList.add("hidden");
+          .querySelector("#confirmation-step")
+          .classList.remove("hidden");
 
-        showElementMessage(message, copy().success);
+        showElementMessage(
+          document.querySelector("#confirmation-message"),
+          copy().success
+        );
       });
 
     applyLanguage(currentLanguage);
