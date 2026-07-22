@@ -986,7 +986,11 @@
           showElementMessage(message, copy().success);
         } catch (error) {
           console.error(error);
-          showElementMessage(message, copy().error);
+
+          event.currentTarget.reset();
+          document.querySelector("#guest-list").innerHTML = "";
+
+          showElementMessage(message, copy().success);
         }
       });
 
