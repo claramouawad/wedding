@@ -129,6 +129,20 @@
       line-height: 1.2;
     }
 
+    .guest-page {
+      display: none;
+    }
+
+    .guest-page.is-active {
+      display: grid;
+    }
+
+    .guest-progress {
+      margin: 0 auto 14px;
+      font-size: 16px;
+      text-align: center;
+    }
+
     .remove-guest {
       color: #4a3a30;
       font: inherit;
@@ -416,38 +430,74 @@
     </section>
 
     <form class="rsvp-form hidden" id="rsvp-form">
-      <h2 class="group-title" id="group-title"></h2>
+      <section id="guest-selection-step">
+        <fieldset>
+          <legend data-i18n="selectGuests">
+            Who are you responding for?
+          </legend>
 
-      <fieldset>
-        <legend data-i18n="selectGuests">
-          Who are you responding for?
-        </legend>
+          <div class="guest-selector" id="guest-selector"></div>
+        </fieldset>
 
-        <div class="guest-selector" id="guest-selector"></div>
-      </fieldset>
+        <div class="button-row">
+          <button
+            class="secondary-button"
+            type="button"
+            id="change-code"
+            data-i18n="changeCode"
+          >
+            Use another code
+          </button>
 
-      <div id="guest-list"></div>
+          <button
+            class="primary-button"
+            type="button"
+            id="fill-details"
+            data-i18n="fillDetails"
+          >
+            Fill details
+          </button>
+        </div>
 
-      <div class="button-row">
-        <button
-          class="secondary-button"
-          type="button"
-          id="change-code"
-          data-i18n="changeCode"
-        >
-          Use another code
-        </button>
+        <p class="form-message" id="selection-message" role="status"></p>
+      </section>
 
-        <button
-          class="primary-button"
-          type="submit"
-          data-i18n="submitRsvp"
-        >
-          Submit RSVP
-        </button>
-      </div>
+      <section class="hidden" id="guest-details-step">
+        <p class="guest-progress" id="guest-progress"></p>
 
-      <p class="form-message" id="form-message" role="status"></p>
+        <div id="guest-list"></div>
+
+        <div class="button-row">
+          <button
+            class="secondary-button"
+            type="button"
+            id="previous-guest"
+            data-i18n="previousGuest"
+          >
+            Back
+          </button>
+
+          <button
+            class="primary-button"
+            type="button"
+            id="next-guest"
+            data-i18n="nextGuest"
+          >
+            Next guest
+          </button>
+
+          <button
+            class="primary-button hidden"
+            type="submit"
+            id="submit-rsvp"
+            data-i18n="submitRsvp"
+          >
+            Submit RSVP
+          </button>
+        </div>
+
+        <p class="form-message" id="form-message" role="status"></p>
+      </section>
     </form>
   </main>
   <script>
@@ -472,6 +522,10 @@
         findInvitation: "Find invitation",
         selectGuests: "Who are you responding for?",
         changeCode: "Use another code",
+        fillDetails: "Fill details",
+        previousGuest: "Back",
+        nextGuest: "Next guest",
+        guestProgress: "Guest {current} of {total}",
         submitRsvp: "Submit RSVP",
         ceremonyLabel: "Will this guest attend the ceremony?",
         receptionLabel: "Will this guest attend the reception?",
@@ -504,6 +558,10 @@
         findInvitation: "Trova invito",
         selectGuests: "Per chi vuoi confermare la presenza?",
         changeCode: "Usa un altro codice",
+        fillDetails: "Compila i dettagli",
+        previousGuest: "Indietro",
+        nextGuest: "Ospite successivo",
+        guestProgress: "Ospite {current} di {total}",
         submitRsvp: "Invia RSVP",
         ceremonyLabel:
           "Questa persona parteciperà alla cerimonia?",
@@ -527,6 +585,7 @@
         error: "Qualcosa è andato storto. Riprova."
       }
     };
+    
 
     function copy() {
       return translations[currentLanguage] || translations.en;
@@ -559,7 +618,12 @@
 
       localStorage.setItem("weddingLanguage", language);
 
-      if (currentGroup) {
+      if (
+        currentGroup &&
+        document
+          .querySelector("#guest-details-step")
+          .classList.contains("hidden")
+      ) {
         renderGuestSelector();
       }
     }
@@ -651,9 +715,6 @@
         currentGroup = response.group;
         availableGuests = response.guests || [];
 
-        document.querySelector("#group-title").textContent =
-          currentGroup.groupName;
-
         document
           .querySelector("#lookup-box")
           .classList.add("hidden");
@@ -711,10 +772,15 @@
       document.querySelector("#guest-list").innerHTML = "";
     }
 
-    function createGuestForm(guest) {
+    let selectedGuests = [];
+    let currentGuestIndex = 0;
+
+    function createGuestForm(guest, index) {
       const section = document.createElement("section");
-      section.className = "guest-section";
+
+      section.className = "guest-section guest-page";
       section.dataset.guestId = guest.guestId;
+      section.dataset.guestIndex = String(index);
 
       const plusOne = isPlusOne(guest);
 
@@ -735,6 +801,7 @@
               id="name-${escapeHtml(guest.guestId)}"
               data-guest-name
               type="text"
+              value="${escapeHtml(guest.response?.name || "")}"
               required
             />
           </div>
@@ -763,6 +830,11 @@
                 type="radio"
                 name="ceremony-${escapeHtml(guest.guestId)}"
                 value="Yes"
+                ${
+                  guest.response?.ceremony === "Yes"
+                    ? "checked"
+                    : ""
+                }
                 required
               />
               <span>${escapeHtml(copy().yesAttend)}</span>
@@ -773,6 +845,11 @@
                 type="radio"
                 name="ceremony-${escapeHtml(guest.guestId)}"
                 value="No"
+                ${
+                  guest.response?.ceremony === "No"
+                    ? "checked"
+                    : ""
+                }
               />
               <span>${escapeHtml(copy().noAttend)}</span>
             </label>
@@ -788,6 +865,11 @@
                 type="radio"
                 name="reception-${escapeHtml(guest.guestId)}"
                 value="Yes"
+                ${
+                  guest.response?.reception === "Yes"
+                    ? "checked"
+                    : ""
+                }
                 required
               />
               <span>${escapeHtml(copy().yesAttend)}</span>
@@ -798,6 +880,11 @@
                 type="radio"
                 name="reception-${escapeHtml(guest.guestId)}"
                 value="No"
+                ${
+                  guest.response?.reception === "No"
+                    ? "checked"
+                    : ""
+                }
               />
               <span>${escapeHtml(copy().noAttend)}</span>
             </label>
@@ -810,7 +897,7 @@
           <textarea
             data-guest-food
             placeholder="${escapeHtml(copy().foodPlaceholder)}"
-          ></textarea>
+          >${escapeHtml(guest.response?.food || "")}</textarea>
         </div>
 
         <div>
@@ -819,6 +906,7 @@
           <input
             data-guest-song
             type="text"
+            value="${escapeHtml(guest.response?.song || "")}"
             placeholder="${escapeHtml(copy().songPlaceholder)}"
           />
         </div>
@@ -827,23 +915,139 @@
       return section;
     }
 
-    function updateSelectedGuests() {
+    function beginGuestDetails() {
+      const selectionMessage =
+        document.querySelector("#selection-message");
+
+      hideElementMessage(selectionMessage);
+
+      const selectedIds = Array.from(
+        document.querySelectorAll("[data-select-guest]:checked")
+      ).map((checkbox) => checkbox.value);
+
+      if (selectedIds.length === 0) {
+        showElementMessage(
+          selectionMessage,
+          copy().selectAtLeastOne
+        );
+        return;
+      }
+
+      selectedGuests = selectedIds
+        .map((guestId) =>
+          availableGuests.find(
+            (guest) => guest.guestId === guestId
+          )
+        )
+        .filter(Boolean);
+
+      currentGuestIndex = 0;
+
       const guestList =
         document.querySelector("#guest-list");
 
       guestList.innerHTML = "";
 
-      document
-        .querySelectorAll("[data-select-guest]:checked")
-        .forEach((checkbox) => {
-          const guest = availableGuests.find(
-            (item) => item.guestId === checkbox.value
-          );
+      selectedGuests.forEach((guest, index) => {
+        guestList.appendChild(createGuestForm(guest, index));
+      });
 
-          if (guest) {
-            guestList.appendChild(createGuestForm(guest));
-          }
-        });
+      document
+        .querySelector("#guest-selection-step")
+        .classList.add("hidden");
+
+      document
+        .querySelector("#guest-details-step")
+        .classList.remove("hidden");
+
+      showCurrentGuest();
+    }
+
+    function showCurrentGuest() {
+      const pages =
+        document.querySelectorAll(".guest-page");
+
+      pages.forEach((page, index) => {
+        page.classList.toggle(
+          "is-active",
+          index === currentGuestIndex
+        );
+      });
+
+      const progressText = copy().guestProgress
+        .replace("{current}", currentGuestIndex + 1)
+        .replace("{total}", selectedGuests.length);
+
+      document.querySelector("#guest-progress").textContent =
+        progressText;
+
+      document.querySelector("#previous-guest").hidden = false;
+
+      const isLastGuest =
+        currentGuestIndex === selectedGuests.length - 1;
+
+      document
+        .querySelector("#next-guest")
+        .classList.toggle("hidden", isLastGuest);
+
+      document
+        .querySelector("#submit-rsvp")
+        .classList.toggle("hidden", !isLastGuest);
+
+      window.scrollTo({
+        top: document.querySelector("#rsvp-form").offsetTop,
+        behavior: "smooth"
+      });
+    }
+
+    function validateCurrentGuest() {
+      const currentPage =
+        document.querySelector(".guest-page.is-active");
+
+      if (!currentPage) return false;
+
+      const fields = currentPage.querySelectorAll(
+        "input, textarea"
+      );
+
+      for (const field of fields) {
+        if (!field.checkValidity()) {
+          field.reportValidity();
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    function goToNextGuest() {
+      if (!validateCurrentGuest()) return;
+
+      if (currentGuestIndex < selectedGuests.length - 1) {
+        currentGuestIndex += 1;
+        showCurrentGuest();
+      }
+    }
+
+    function goToPreviousGuest() {
+      if (currentGuestIndex > 0) {
+        currentGuestIndex -= 1;
+        showCurrentGuest();
+        return;
+      }
+
+      document
+        .querySelector("#guest-details-step")
+        .classList.add("hidden");
+
+      document
+        .querySelector("#guest-selection-step")
+        .classList.remove("hidden");
+
+      window.scrollTo({
+        top: document.querySelector("#rsvp-form").offsetTop,
+        behavior: "smooth"
+      });
     }
 
     function collectSelectedGuests() {
@@ -887,7 +1091,6 @@
       document.querySelector("#rsvp-form").reset();
       document.querySelector("#guest-selector").innerHTML = "";
       document.querySelector("#guest-list").innerHTML = "";
-      document.querySelector("#group-title").textContent = "";
       document.querySelector("#invitation-code").value = "";
 
       document
@@ -899,6 +1102,17 @@
         .classList.remove("hidden");
 
       document.querySelector("#invitation-code").focus();
+
+      selectedGuests = [];
+      currentGuestIndex = 0;
+
+      document
+        .querySelector("#guest-selection-step")
+        .classList.remove("hidden");
+
+      document
+        .querySelector("#guest-details-step")
+        .classList.add("hidden");
     }
 
     function escapeHtml(value) {
@@ -930,8 +1144,16 @@
       });
 
     document
-      .querySelector("#guest-selector")
-      .addEventListener("change", updateSelectedGuests);
+      .querySelector("#fill-details")
+      .addEventListener("click", beginGuestDetails);
+
+    document
+      .querySelector("#next-guest")
+      .addEventListener("click", goToNextGuest);
+
+    document
+      .querySelector("#previous-guest")
+      .addEventListener("click", goToPreviousGuest);
 
     document
       .querySelector("#change-code")
@@ -947,9 +1169,9 @@
 
         hideElementMessage(message);
 
-        const selectedGuests = collectSelectedGuests();
+        const responses = collectSelectedGuests();
 
-        if (selectedGuests.length === 0) {
+        if (responses.length === 0) {
           showElementMessage(
             message,
             copy().selectAtLeastOne
@@ -957,7 +1179,7 @@
           return;
         }
 
-        if (!event.currentTarget.reportValidity()) {
+        if (!validateCurrentGuest()) {
           return;
         }
 
@@ -967,7 +1189,7 @@
           groupCode: currentGroup.groupCode,
           language: currentLanguage,
           submittedAt: new Date().toISOString(),
-          guests: selectedGuests
+          guests: responses
         };
 
         fetch(GOOGLE_SCRIPT_URL, {
@@ -984,6 +1206,19 @@
         // Do not wait for Google's unreadable no-cors response.
         event.currentTarget.reset();
         document.querySelector("#guest-list").innerHTML = "";
+        document.querySelector("#guest-progress").textContent = "";
+
+        document
+          .querySelector("#previous-guest")
+          .classList.add("hidden");
+
+        document
+          .querySelector("#next-guest")
+          .classList.add("hidden");
+
+        document
+          .querySelector("#submit-rsvp")
+          .classList.add("hidden");
 
         showElementMessage(message, copy().success);
       });
