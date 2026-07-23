@@ -263,7 +263,9 @@
 
   <main>
     <h1 data-i18n="detailsTitle">Details</h1>
-    <p class="date-note" data-i18n="dateNote">Our wedding will take place on Saturday 03 July 2027.</p>
+    <p class="date-note" data-i18n="dateNote">
+      Our wedding will take place on Saturday, the 3<sup>rd</sup> of July 2027.
+    </p>
     <ul class="events">
       <li class="event">
         <h2>
@@ -356,7 +358,13 @@
       document.documentElement.lang = language;
       document.title = copy.pageTitle;
       document.querySelectorAll("[data-i18n]").forEach((element) => {
-        element.textContent = copy[element.dataset.i18n];
+        const value = copy[element.dataset.i18n];
+
+        if (element.dataset.i18n === "dateNote") {
+          element.innerHTML = value;
+        } else {
+          element.textContent = value;
+        }
       });
       document.querySelectorAll("[data-lang]").forEach((button) => {
         button.setAttribute("aria-pressed", String(button.dataset.lang === language));
