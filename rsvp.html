@@ -106,6 +106,15 @@
       text-align: left;
     }
 
+    .lookup-note {
+      max-width: 520px;
+      margin: 10px auto 0;
+      text-align: center;
+      font-size: 14px;
+      color: #8a7b6d;
+      line-height: 1.4;
+    }
+
     .guest-section {
       display: grid;
       gap: 18px;
@@ -268,6 +277,11 @@
       margin: 0 auto 20px;
     }
 
+    .required {
+      color: #c53b3b;
+      font-weight: bold;
+    }
+
     @media (max-width: 600px) {
       .site-nav {
         gap: 3px;
@@ -309,6 +323,12 @@
 
       .rsvp-form {
         gap: 18px;
+      }
+
+      @media (max-width: 600px) {
+        .lookup-note {
+          font-size: 11px;
+        }
       }
 
       .guest-section {
@@ -415,8 +435,9 @@
 
     <section class="lookup-box" id="lookup-box">
       <div>
-        <label for="invitation-code" data-i18n="codeLabel">
-          Invitation code
+        <label for="invitation-code">
+          <span data-i18n="codeLabel">Invitation code</span>
+          <span class="required">*</span>
         </label>
 
         <input
@@ -439,6 +460,15 @@
 
       <p class="form-message" id="lookup-message" role="status"></p>
     </section>
+
+    <p class="lookup-note">
+      <span class="required">*</span>
+      <span data-i18n="lookupNote">
+        You can find your invitation code on your wedding invitation.
+      </span>
+    </p>
+
+
 
     <form class="rsvp-form hidden" id="rsvp-form">
       <section id="guest-selection-step">
@@ -550,6 +580,7 @@
         codeLabel: "Invitation code",
         codePlaceholder: "Enter your invitation code",
         findInvitation: "Find invitation",
+        lookupNote: "You can find your invitation code on your wedding invitation",
         selectGuests: "Who are you responding for?",
         changeCode: "Use another code",
         fillDetails: "Fill details",
@@ -586,6 +617,7 @@
         codeLabel: "Codice dell'invito",
         codePlaceholder: "Inserisci il codice dell'invito",
         findInvitation: "Trova invito",
+        lookupNote: "Puoi trovare il codice del tuo invito sull'invito di matrimonio",
         selectGuests: "Per chi vuoi confermare la presenza?",
         changeCode: "Usa un altro codice",
         fillDetails: "Compila i dettagli",
