@@ -1355,7 +1355,13 @@
         );
       });
 
-    applyLanguage(currentLanguage);
+    const params = new URLSearchParams(window.location.search);
+    const language =
+      params.get("lang") ||
+      localStorage.getItem("weddingLanguage") ||
+      "en";
+
+    applyLanguage(language);
   </script>
 </body>
 </html>
