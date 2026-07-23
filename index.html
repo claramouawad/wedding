@@ -179,7 +179,14 @@
       button.addEventListener("click", () => applyLanguage(button.dataset.lang));
     });
 
-    applyLanguage(localStorage.getItem("weddingLanguage") || "en");
+    const params = new URLSearchParams(window.location.search);
+
+    const language =
+      params.get("lang") ||
+      localStorage.getItem("weddingLanguage") ||
+      "en";
+
+    applyLanguage(language);
   </script>
 </body>
 </html>
